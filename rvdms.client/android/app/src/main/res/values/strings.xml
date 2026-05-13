@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">RVDMS</string>
+    <string name="title_activity_main">RVDMS</string>
+    <string name="package_name">com.rvdms.app</string>
+    <string name="custom_url_scheme">com.rvdms.app</string>
+</resources>

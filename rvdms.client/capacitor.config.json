@@ -1,0 +1,9 @@
+{
+  "appId": "com.rvdms.app",
+  "appName": "RVDMS",
+  "webDir": "dist",
+  "server": {
+    "url": "https://rvdms.netlify.app",
+    "cleartext": false
+  }
+}
