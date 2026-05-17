@@ -129,75 +129,191 @@
         </div>
       </div>
 
-      <!-- Right Column -->
+      <!-- Right Column - Evenly Spaced Cards -->
       <div class="space-y-6">
-        <div class="bg-white rounded-xl border p-6 text-center">
-          <div class="relative w-32 h-32 mx-auto">
-            <svg viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="45" fill="none" stroke="#e2e8f0" stroke-width="10" />
-              <circle
-                cx="50"
-                cy="50"
-                r="45"
-                fill="none"
-                :stroke="progressCircleColor"
-                stroke-width="10"
-                stroke-linecap="round"
-                :stroke-dasharray="283"
-                :stroke-dashoffset="283 - (283 * project.currentPhysicalProgress) / 100"
-                transform="rotate(-90 50 50)"
-              />
-              <text
-                x="50"
-                y="50"
-                text-anchor="middle"
-                dominant-baseline="middle"
-                class="text-2xl font-bold fill-slate-900"
-              >
-                {{ project.currentPhysicalProgress }}%
-              </text>
-            </svg>
+        <!-- Row 1: Physical Progress + Budget (side by side) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <!-- Physical Progress Card -->
+          <div class="bg-white rounded-xl border p-6 text-center">
+            <div class="relative w-28 h-28 mx-auto">
+              <svg viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#e2e8f0" stroke-width="10" />
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="45"
+                  fill="none"
+                  :stroke="progressCircleColor"
+                  stroke-width="10"
+                  stroke-linecap="round"
+                  :stroke-dasharray="283"
+                  :stroke-dashoffset="283 - (283 * project.currentPhysicalProgress) / 100"
+                  transform="rotate(-90 50 50)"
+                />
+                <text
+                  x="50"
+                  y="50"
+                  text-anchor="middle"
+                  dominant-baseline="middle"
+                  class="text-xl font-bold fill-slate-900"
+                >
+                  {{ project.currentPhysicalProgress }}%
+                </text>
+              </svg>
+            </div>
+            <p class="text-sm text-slate-600 mt-2">Physical Progress</p>
+            <div class="mt-3 space-y-2">
+              <div class="flex justify-between text-xs">
+                <span>Time Elapsed</span>
+                <span>{{ project.timeElapsedPercentage }}%</span>
+              </div>
+              <div class="bg-slate-200 rounded-full h-1.5">
+                <div
+                  class="bg-blue-500 h-1.5 rounded-full"
+                  :style="{ width: `${project.timeElapsedPercentage}%` }"
+                ></div>
+              </div>
+              <div class="flex justify-between text-xs mt-2">
+                <span>Variance</span>
+                <span :class="project.variance >= 0 ? 'text-emerald-600' : 'text-red-600'"
+                  >{{ project.variance }}%</span
+                >
+              </div>
+            </div>
           </div>
-          <p class="text-sm text-slate-600 mt-2">Physical Progress</p>
-          <div class="mt-4 space-y-2">
-            <div class="flex justify-between">
-              <span class="text-sm">Time Elapsed</span>
-              <span>{{ project.timeElapsedPercentage }}%</span>
+
+          <!-- Budget Card -->
+          <div class="bg-white rounded-xl border p-6">
+            <h3 class="text-sm font-medium mb-3 flex items-center gap-2">
+              <DollarSignIcon class="w-4 h-4 text-slate-500" />
+              Budget
+            </h3>
+            <div>
+              <p class="text-xs text-slate-500 mb-1">Contract Sum</p>
+              <p class="text-base font-semibold">
+                KES {{ formatCurrencyFull(project.contractSum) }}
+              </p>
             </div>
-            <div class="bg-slate-200 rounded-full h-2">
-              <div
-                class="bg-blue-500 h-2 rounded-full"
-                :style="{ width: `${project.timeElapsedPercentage}%` }"
-              ></div>
+            <div class="mt-3 pt-3 border-t border-slate-100">
+              <p class="text-xs text-slate-500 mb-1">Remaining Budget</p>
+              <p class="text-base font-semibold text-blue-600">
+                KES {{ formatCurrencyFull(project.remainingBudget) }}
+              </p>
             </div>
-            <div class="flex justify-between mt-3">
-              <span class="text-sm">Variance</span>
-              <span :class="project.variance >= 0 ? 'text-emerald-600' : 'text-red-600'"
-                >{{ project.variance }}%</span
-              >
+            <div class="mt-3">
+              <div class="bg-slate-200 rounded-full h-1.5">
+                <div
+                  class="bg-blue-500 h-1.5 rounded-full"
+                  :style="{
+                    width: `${((parseFloat(project.contractSum) - parseFloat(project.remainingBudget)) / parseFloat(project.contractSum)) * 100}%`,
+                  }"
+                ></div>
+              </div>
+              <p class="text-xs text-slate-400 mt-1 text-center">
+                {{
+                  Math.round(
+                    ((parseFloat(project.contractSum) - parseFloat(project.remainingBudget)) /
+                      parseFloat(project.contractSum)) *
+                      100,
+                  )
+                }}% utilized
+              </p>
             </div>
           </div>
         </div>
 
+        <!-- Row 2: Certification Tracking Card -->
         <div class="bg-white rounded-xl border p-6">
-          <h3 class="text-sm font-medium mb-3">Budget</h3>
-          <div>
-            <p class="text-xs text-slate-500 mb-1">Contract Sum</p>
-            <p class="text-lg font-semibold">KES {{ formatCurrencyFull(project.contractSum) }}</p>
+          <div class="flex justify-between items-start mb-4">
+            <h3 class="text-sm font-medium flex items-center gap-2">
+              <CheckCircleIcon class="w-4 h-4 text-emerald-600" />
+              Certification Progress
+            </h3>
+            <button
+              v-if="userRole === 'RL' || userRole === 'SuperAdmin'"
+              @click="showCertificationModal = true"
+              class="text-emerald-600 hover:text-emerald-700 text-sm flex items-center gap-1"
+            >
+              <EditIcon class="w-3 h-3" /> Update
+            </button>
           </div>
-          <div class="mt-3">
-            <p class="text-xs text-slate-500 mb-1">Remaining</p>
-            <p class="text-lg font-semibold text-blue-600">
-              KES {{ formatCurrencyFull(project.remainingBudget) }}
+
+          <!-- Certified Amount Display -->
+          <div class="text-center mb-4">
+            <p class="text-xs text-slate-500 mb-1">Certified Amount</p>
+            <p class="text-2xl font-bold text-emerald-600">
+              KES {{ formatCurrencyFull(certifiedAmount) }}
+            </p>
+            <p class="text-xs text-slate-400 mt-1">
+              of KES {{ formatCurrencyFull(project.contractSum) }} total contract
             </p>
           </div>
+
+          <!-- Certification Progress Circle & Bar side by side -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+            <!-- Mini Circle -->
+            <div class="flex justify-center">
+              <div class="relative w-24 h-24">
+                <svg viewBox="0 0 100 100" class="transform -rotate-90">
+                  <circle cx="50" cy="50" r="45" fill="none" stroke="#e2e8f0" stroke-width="8" />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    fill="none"
+                    stroke="#10b981"
+                    stroke-width="8"
+                    stroke-linecap="round"
+                    :stroke-dasharray="283"
+                    :stroke-dashoffset="283 - (283 * certificationPercentage) / 100"
+                  />
+                  <text
+                    x="50"
+                    y="50"
+                    text-anchor="middle"
+                    dominant-baseline="middle"
+                    class="text-base font-bold fill-slate-900"
+                  >
+                    {{ certificationPercentage }}%
+                  </text>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Progress Bar and Details -->
+            <div>
+              <div class="flex justify-between text-xs text-slate-500 mb-1">
+                <span>Not Certified</span>
+                <span>Fully Certified</span>
+              </div>
+              <div class="bg-slate-200 rounded-full h-2 overflow-hidden">
+                <div
+                  class="bg-emerald-500 h-2 rounded-full transition-all duration-500"
+                  :style="{ width: `${certificationPercentage}%` }"
+                ></div>
+              </div>
+              <div class="mt-3 flex justify-between text-xs">
+                <div>
+                  <p class="text-slate-500">Remaining to Certify</p>
+                  <p class="font-medium text-amber-600">
+                    KES {{ formatCurrencyFull(remainingToCertify) }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-slate-500">Certified %</p>
+                  <p class="font-medium text-emerald-600">{{ certificationPercentage }}%</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
+        <!-- Row 3: Project Team Card -->
         <div class="bg-white rounded-xl border p-6">
           <h3 class="text-sm font-medium mb-3 flex items-center gap-2">
             <UsersIcon class="w-4 h-4" />Project Team
           </h3>
-          <div class="space-y-3">
+          <div class="grid grid-cols-2 gap-4">
             <div>
               <p class="text-xs text-slate-500">Clerk of Works</p>
               <p class="text-sm font-medium">{{ project.clerkOfWorks || "Not assigned" }}</p>
@@ -207,12 +323,17 @@
               <p class="text-sm font-medium">{{ project.clusterSupervisor || "Not assigned" }}</p>
             </div>
             <div>
+              <p class="text-xs text-slate-500">Technical Lead</p>
+              <p class="text-sm font-medium">{{ project.technicalLead || "Not assigned" }}</p>
+            </div>
+            <div>
               <p class="text-xs text-slate-500">Total Reports</p>
               <p class="text-sm font-medium">{{ reports.length }} submitted</p>
             </div>
           </div>
         </div>
 
+        <!-- At Risk Warning -->
         <div v-if="project.isAtRisk" class="bg-red-50 border border-red-200 rounded-xl p-4">
           <div class="flex gap-3">
             <AlertCircleIcon class="w-5 h-5 text-red-600 flex-shrink-0" />
@@ -231,7 +352,6 @@
 
     <!-- ==================== TEAM ASSIGNMENTS TAB ==================== -->
     <div v-if="activeTab === 'assignments'" class="space-y-6">
-      <!-- Assign Button - ONLY for RL and SuperAdmin -->
       <div class="flex justify-end">
         <button
           v-if="userRole === 'RL' || userRole === 'SuperAdmin'"
@@ -243,7 +363,6 @@
         </button>
       </div>
 
-      <!-- Current Assignments -->
       <div class="bg-white rounded-xl border overflow-hidden">
         <div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
           <h3 class="text-sm font-medium">Project Assignments</h3>
@@ -258,12 +377,6 @@
         <div v-else-if="assignments.length === 0" class="p-12 text-center">
           <UsersIcon class="w-12 h-12 text-slate-300 mx-auto mb-3" />
           <p class="text-slate-500">No users assigned to this project yet</p>
-          <p
-            v-if="userRole === 'RL' || userRole === 'SuperAdmin'"
-            class="text-xs text-slate-400 mt-2"
-          >
-            Click the "Assign User" button to add team members
-          </p>
         </div>
 
         <div v-else class="divide-y divide-slate-200">
@@ -294,7 +407,6 @@
                     </span>
                   </div>
                   <p class="text-xs text-slate-500 mt-0.5">{{ assignment.userEmail }}</p>
-                  <!-- Phone Number - Clickable to dial -->
                   <div class="flex items-center gap-2 mt-1">
                     <a
                       v-if="assignment.userPhoneNumber"
@@ -314,7 +426,6 @@
                   </p>
                 </div>
               </div>
-              <!-- Revoke Button - ONLY for RL and SuperAdmin -->
               <button
                 v-if="(userRole === 'RL' || userRole === 'SuperAdmin') && !assignment.revokedAt"
                 @click="revokeAssignment(assignment.id)"
@@ -421,7 +532,7 @@
       </div>
     </div>
 
-    <!-- ==================== ASSIGNMENT MODAL (Only for RL/SuperAdmin) ==================== -->
+    <!-- ==================== ASSIGNMENT MODAL ==================== -->
     <div
       v-if="showAssignmentModal && (userRole === 'RL' || userRole === 'SuperAdmin')"
       class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
@@ -462,12 +573,6 @@
                 {{ user.name }} ({{ user.email }}) - {{ getRoleDisplayName(user.role) }}
               </option>
             </select>
-            <p
-              v-if="!assignmentForm.role && assignableUsers.length === 0"
-              class="text-xs text-amber-600 mt-1"
-            >
-              Please select a role first to see available users
-            </p>
           </div>
 
           <div class="flex gap-3 pt-4">
@@ -483,6 +588,93 @@
               class="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ submittingAssignment ? "Assigning..." : "Assign User" }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== CERTIFICATION UPDATE MODAL ==================== -->
+    <div
+      v-if="showCertificationModal && (userRole === 'RL' || userRole === 'SuperAdmin')"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      @click.self="showCertificationModal = false"
+    >
+      <div class="bg-white rounded-xl max-w-md w-full p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Update Certified Amount</h3>
+          <button
+            @click="showCertificationModal = false"
+            class="text-slate-400 hover:text-slate-600"
+          >
+            <XIcon class="w-5 h-5" />
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Current Values -->
+          <div class="bg-slate-50 p-3 rounded-lg space-y-2">
+            <div class="flex justify-between text-sm">
+              <span class="text-slate-600">Contract Sum:</span>
+              <span class="font-medium">KES {{ formatCurrencyFull(project.contractSum) }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-slate-600">Current Certified:</span>
+              <span class="font-medium text-emerald-600"
+                >KES {{ formatCurrencyFull(certifiedAmount) }}</span
+              >
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-slate-600">Current Certification:</span>
+              <span class="font-medium">{{ certificationPercentage }}%</span>
+            </div>
+          </div>
+
+          <!-- New Certification Amount -->
+          <div>
+            <label class="block text-sm font-medium mb-1">New Certified Amount (KES)</label>
+            <input
+              v-model.number="certificationForm.certifiedAmount"
+              type="number"
+              step="1000"
+              min="0"
+              :max="project.contractSum"
+              @input="updatePercentageFromAmount"
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="Enter certified amount"
+            />
+            <p class="text-xs text-slate-500 mt-1">
+              Max: KES {{ formatCurrencyFull(project.contractSum) }}
+            </p>
+          </div>
+
+          <!-- Or update by percentage -->
+          <div>
+            <label class="block text-sm font-medium mb-1">Or set percentage (%)</label>
+            <input
+              v-model.number="certificationForm.percentage"
+              type="number"
+              step="5"
+              min="0"
+              max="100"
+              @input="updateAmountFromPercentage"
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+
+          <div class="flex gap-3 pt-4">
+            <button
+              @click="showCertificationModal = false"
+              class="flex-1 px-4 py-2 border rounded-lg hover:bg-slate-50"
+            >
+              Cancel
+            </button>
+            <button
+              @click="submitCertificationUpdate"
+              :disabled="submittingCertification"
+              class="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ submittingCertification ? "Updating..." : "Update Certification" }}
             </button>
           </div>
         </div>
@@ -513,6 +705,8 @@ import {
   Trash2 as Trash2Icon,
   X as XIcon,
   Phone as PhoneIcon,
+  Edit as EditIcon,
+  DollarSign as DollarSignIcon,
 } from "lucide-vue-next";
 
 const route = useRoute();
@@ -537,8 +731,46 @@ const assignmentForm = ref({
   userId: "",
 });
 
+// Certification State
+const showCertificationModal = ref(false);
+const submittingCertification = ref(false);
+const certificationForm = ref({
+  certifiedAmount: 0,
+  percentage: 0,
+});
+
 // Get user role from auth store
 const userRole = computed(() => authStore.userRole);
+
+// Computed certification values
+const certifiedAmount = computed(() => {
+  if (!project.value) return 0;
+  const contractSum = parseFloat(project.value.contractSum) || 0;
+  const remainingBudget = parseFloat(project.value.remainingBudget) || 0;
+  return Math.max(0, contractSum - remainingBudget);
+});
+
+const certificationPercentage = computed(() => {
+  if (!project.value) return 0;
+  const contractSum = parseFloat(project.value.contractSum) || 0;
+  if (contractSum === 0) return 0;
+
+  const percentage = (certifiedAmount.value / contractSum) * 100;
+
+  // If between 99.5% and 100%, show 1 decimal
+  if (percentage >= 99.5 && percentage < 100) {
+    return percentage.toFixed(1); // Returns "99.8"
+  }
+
+  // Otherwise round to nearest whole number
+  return Math.round(percentage);
+});
+
+const remainingToCertify = computed(() => {
+  if (!project.value) return 0;
+  const contractSum = parseFloat(project.value.contractSum) || 0;
+  return Math.max(0, contractSum - certifiedAmount.value);
+});
 
 const progressCircleColor = computed(() => {
   const progress = project.value?.currentPhysicalProgress || 0;
@@ -599,6 +831,54 @@ const getRoleBadgeClass = (role) => {
 
 const goBack = () => router.back();
 
+// Certification form helpers
+const updateAmountFromPercentage = () => {
+  const contractSum = parseFloat(project.value.contractSum) || 0;
+  certificationForm.value.certifiedAmount = Math.round(
+    (certificationForm.value.percentage / 100) * contractSum,
+  );
+};
+
+const updatePercentageFromAmount = () => {
+  const contractSum = parseFloat(project.value.contractSum) || 0;
+  if (contractSum > 0) {
+    certificationForm.value.percentage = Math.round(
+      (certificationForm.value.certifiedAmount / contractSum) * 100,
+    );
+  }
+};
+
+// Submit Certification Update
+const submitCertificationUpdate = async () => {
+  submittingCertification.value = true;
+  try {
+    const newRemainingBudget =
+      parseFloat(project.value.contractSum) - certificationForm.value.certifiedAmount;
+
+    const response = await apiClient.put(`/Projects/${project.value.id}/update-budget`, {
+      remainingBudget: newRemainingBudget,
+      notes: `Certification updated to ${certificationForm.value.percentage}% (KES ${formatCurrencyFull(certificationForm.value.certifiedAmount)})`,
+    });
+
+    if (response.data.isSuccess === false) {
+      throw new Error(response.data.error);
+    }
+
+    toast.success(`Certification updated to ${certificationForm.value.percentage}%`);
+    showCertificationModal.value = false;
+
+    await projectStore.fetchProjectById(project.value.id);
+    project.value = projectStore.selectedProject;
+
+    certificationForm.value = { certifiedAmount: 0, percentage: 0 };
+  } catch (error) {
+    console.error("Failed to update certification:", error);
+    toast.error(error.message || "Failed to update certification");
+  } finally {
+    submittingCertification.value = false;
+  }
+};
+
 // Fetch Reports
 const fetchReports = async () => {
   reportsLoading.value = true;
@@ -615,13 +895,12 @@ const fetchReports = async () => {
   }
 };
 
-// Fetch Assignments - THIS SHOULD WORK FOR ALL ROLES
+// Fetch Assignments
 const fetchAssignments = async () => {
   assignmentsLoading.value = true;
   try {
     const response = await apiClient.get(`/ProjectAssignments/project/${project.value.id}`);
     assignments.value = response.data || [];
-    console.log("Assignments fetched:", assignments.value.length); // Debug log
   } catch (error) {
     console.error("Failed to fetch assignments:", error);
     assignments.value = [];
@@ -630,7 +909,7 @@ const fetchAssignments = async () => {
   }
 };
 
-// Fetch Assignable Users (Only for RL/SuperAdmin)
+// Fetch Assignable Users
 const fetchAssignableUsers = async () => {
   if (!assignmentForm.value.role) return;
   try {
@@ -652,7 +931,7 @@ const onRoleChange = () => {
   }
 };
 
-// Submit Assignment (Only for RL/SuperAdmin)
+// Submit Assignment
 const submitAssignment = async () => {
   if (!assignmentForm.value.role || !assignmentForm.value.userId) {
     toast.error("Please select both role and user");
@@ -684,7 +963,7 @@ const submitAssignment = async () => {
   }
 };
 
-// Revoke Assignment (Only for RL/SuperAdmin)
+// Revoke Assignment
 const revokeAssignment = async (assignmentId) => {
   if (!confirm("Are you sure you want to revoke this assignment?")) return;
 
@@ -760,6 +1039,10 @@ onMounted(async () => {
     project.value = projectStore.selectedProject;
     if (project.value) {
       await Promise.all([fetchReports(), fetchAssignments()]);
+      certificationForm.value = {
+        certifiedAmount: certifiedAmount.value,
+        percentage: certificationPercentage.value,
+      };
     }
   } catch (error) {
     console.error("Failed to load project:", error);
