@@ -28,7 +28,7 @@ try
             policy =>
             {
                 policy.WithOrigins("https://localhost:64900",
-                    "https://rvdms-web.netlify.app/")
+                    "https://rvdms-web.netlify.app")
                       .AllowAnyHeader()
                       .AllowAnyMethod()
                       .AllowCredentials();
