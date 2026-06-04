@@ -10,12 +10,23 @@
           Manage system users and their assignments
         </p>
       </div>
-      <RouterLink
-        to="/dashboard"
-        class="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-slate-600 hover:text-emerald-600 transition-colors w-fit"
-      >
-        <ArrowLeftIcon class="w-4 h-4" /> Back to Dashboard
-      </RouterLink>
+     <div class="flex items-center gap-2">
+        <!-- Only show for SuperAdmin -->
+        <RouterLink
+          v-if="userRole === 'SuperAdmin'"
+          to="/dashboard/users/register"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors text-sm"
+        >
+          <UserPlusIcon class="w-4 h-4" />
+          Register New User
+        </RouterLink>
+        <RouterLink
+          to="/dashboard"
+          class="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-slate-600 hover:text-emerald-600 transition-colors"
+        >
+          <ArrowLeftIcon class="w-4 h-4" /> Back to Dashboard
+        </RouterLink>
+      </div>
     </div>
 
     <!-- Filters -->
@@ -324,16 +335,22 @@
 import { ref, computed, onMounted } from "vue";
 import { useRouter, RouterLink } from "vue-router";
 import { useUserStore } from "@/stores/userStore";
+import { useAuthStore } from "@/stores/AuthStore";  // ✅ ADD THIS
 import { getRoleDisplayName, formatDate } from "@/utils/permissions";
 import {
   ArrowLeft as ArrowLeftIcon,
   X as XIcon,
   Users as UsersIcon,
   Loader2 as Loader2Icon,
+  UserPlusIcon,  // ✅ ADD THIS
 } from "lucide-vue-next";
 
 const router = useRouter();
 const userStore = useUserStore();
+const authStore = useAuthStore();  // ✅ ADD THIS
+
+// ✅ ADD THIS - Get user role from auth store
+const userRole = computed(() => authStore.userRole);
 
 // State
 const filters = ref({
@@ -384,26 +401,22 @@ const hasActiveFilters = computed(() => {
   );
 });
 
-// Helper to get county name
+// Helper functions
 const getCountyName = (id) => {
   const county = counties.value.find((c) => c.id === id);
   return county ? county.name : id;
 };
 
-// Helper to get county from user's base location
 const getCountyFromBaseLocation = (user) => {
-  // If user has countyId directly
   if (user.countyId) {
     return getCountyName(user.countyId);
   }
-  // If user has baseLocation object
   if (user.baseLocation?.county) {
     return user.baseLocation.county;
   }
   return null;
 };
 
-// Role badge styling
 const getRoleBadgeClass = (role) => {
   const classes = {
     CS: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
@@ -415,7 +428,6 @@ const getRoleBadgeClass = (role) => {
   return classes[role] || "bg-slate-100 text-slate-700";
 };
 
-// Methods
 const goToUser = (id) => {
   router.push(`/dashboard/users/${id}`);
 };

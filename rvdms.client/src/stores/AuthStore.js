@@ -39,8 +39,10 @@ export const useAuthStore = defineStore("auth", () => {
       const response = await apiClient.post("/Auth/login", {
         email,
         password,
-        currentLatitude: 0.983978,
-        currentLongitude: 34.98466,
+        currentLatitude: latitude,
+        currentLongitude: longitude,
+        // currentLatitude: 0.983978,
+        // currentLongitude: 34.98466,
       });
       console.log("latitude: ", latitude);
       console.log("longitude: ", longitude);

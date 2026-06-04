@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using RVDMS.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,10 @@ namespace RVDMS.Application.Interfaces
         DbSet<ProjectAssignment> ProjectAssignments { get; }
         DbSet<Ward> Wards { get; }
         DbSet<WeeklyReport> WeeklyReports { get; }
+
+        DbSet<ApplicationUser> Users { get; }
+        DbSet<IdentityUserRole<string>> UserRoles { get; }
+        DbSet<IdentityRole> Roles { get; }
 
 
 

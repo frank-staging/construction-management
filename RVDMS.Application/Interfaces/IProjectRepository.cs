@@ -16,5 +16,15 @@ namespace RVDMS.Application.Interfaces
         Task<Project?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
         Task UpdateAsync(Project project, CancellationToken cancellationToken = default);
         Task<Project?> GetProjectByUserIdAsync(string userId, CancellationToken cancellationToken = default);
+        // Create
+        Task<Project> AddAsync(Project project, CancellationToken cancellationToken = default);
+
+       
+
+        // Delete (Soft delete)
+        Task SoftDeleteAsync(Guid id, string deletedBy, CancellationToken cancellationToken = default);
+
+        // Save changes
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

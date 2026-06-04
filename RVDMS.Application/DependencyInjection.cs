@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RVDMS.Application.Mappings;
 
 namespace RVDMS.Application
 {
@@ -23,6 +24,10 @@ namespace RVDMS.Application
                 cfg.RegisterServicesFromAssembly(assembly);
             });
             services.AddValidatorsFromAssembly(assembly);
+            services.AddAutoMapper(cfg =>  
+            {
+                cfg.AddMaps(typeof(MappingProfile).Assembly);
+            });
             services.AddTransient(
             typeof(IPipelineBehavior<,>),
             typeof(LoggingBehavior<,>));

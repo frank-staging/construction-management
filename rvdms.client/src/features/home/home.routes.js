@@ -10,11 +10,52 @@ export default [
     meta: { requiresAuth: false },
   },
 
-  // LEADERSHIP ROUTES - All wrapped in AppLayout
+  // SUPER ADMIN ROUTES - Wrapped in AppLayout
   {
     path: "/dashboard",
     component: AppLayout,
-    meta: { requiresAuth: true, roles: ["CS", "RL", "CDH", "TL"] },
+    meta: { requiresAuth: true, role: "SuperAdmin" },
+    children: [
+      {
+        name: "superAdminDashboard",
+        path: "",
+        component: () => import("./views/dashboard/superAdmin/SuperAdminDashboard.vue"),
+      },
+      {
+        name: "superAdminProjects",
+        path: "projects",
+        component: () => import("./views/dashboard/admin/ProjectsList.vue"),
+      },
+      {
+  path: "/dashboard/users/register",
+  name: "registerUser",
+  component: () => import("./views/dashboard/superAdmin/RegisterUser.vue"),
+  meta: { requiresAuth: true, role: "SuperAdmin" },
+},
+      {
+        name: "superAdminProjectDetails",
+        path: "projects/:id",
+        component: () => import("./views/dashboard/admin/ProjectDetails.vue"),
+      },
+      {
+        name: "superAdminUsers",
+        path: "users",
+        component: () => import("./views/dashboard/admin/UsersList.vue"),
+      },
+      {
+        name: "superAdminUserDetails",
+        path: "users/:id",
+        component: () => import("./views/dashboard/admin/UserDetails.vue"),
+      },
+      
+    ],
+  },
+
+  // LEADERSHIP ROUTES (RL, CDH, TL, CS) - All wrapped in AppLayout
+  {
+    path: "/dashboard",
+    component: AppLayout,
+    meta: { requiresAuth: true, roles: ["RL", "CDH", "TL", "CS"] },
     children: [
       {
         name: "adminDashboard",

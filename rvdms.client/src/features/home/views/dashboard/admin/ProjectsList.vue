@@ -10,12 +10,23 @@
           Manage and monitor all projects
         </p>
       </div>
-      <RouterLink
-        to="/dashboard"
-        class="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-slate-600 hover:text-emerald-600 transition-colors w-fit"
-      >
-        <ArrowLeftIcon class="w-4 h-4" /> Back to Dashboard
-      </RouterLink>
+       <div class="flex items-center gap-2">
+        <!-- Only show for SuperAdmin -->
+        <button
+          v-if="userRole === 'SuperAdmin'"
+          @click="showCreateModal = true"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors text-sm"
+        >
+          <PlusIcon class="w-4 h-4" />
+          New Project
+        </button>
+        <RouterLink
+          to="/dashboard"
+          class="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-slate-600 hover:text-emerald-600 transition-colors w-fit"
+        >
+          <ArrowLeftIcon class="w-4 h-4" /> Back to Dashboard
+        </RouterLink>
+      </div>
     </div>
 
     <!-- Filters Section -->
@@ -358,12 +369,18 @@
       </div>
     </div>
   </div>
+   <ProjectForm 
+    :isOpen="showCreateModal"
+    @close="showCreateModal = false"
+    @created="handleProjectCreated"
+  />
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useRouter, RouterLink } from "vue-router";
 import { useProjectStore } from "@/stores/projectStore";
+import { useAuthStore } from "@/stores/AuthStore";
 import { getStatusBadgeClass, getProgressBarClass, formatDate } from "@/utils/permissions";
 import {
   ArrowLeft as ArrowLeftIcon,
@@ -371,8 +388,15 @@ import {
   SortAsc as SortIcon,
   FolderOpen as FolderOpenIcon,
   Loader2 as Loader2Icon,
+  Plus as PlusIcon,  // ✅ Added
 } from "lucide-vue-next";
+import ProjectForm from "@/components/projects/ProjectForm.vue";
 
+
+const authStore = useAuthStore();
+
+const showCreateModal = ref(false);
+const userRole = computed(() => authStore.userRole);
 const router = useRouter();
 const projectStore = useProjectStore();
 
@@ -515,7 +539,10 @@ const sortBy = (field) => {
     sortOrder.value = "asc";
   }
 };
-
+const handleProjectCreated = () => {
+  // Refresh the projects list
+  projectStore.fetchProjects({ pageSize: pageSize.value });
+};
 const changePage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     const params = {

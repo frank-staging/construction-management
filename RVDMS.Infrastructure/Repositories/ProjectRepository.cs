@@ -19,6 +19,13 @@ namespace RVDMS.Infrastructure.Repositories
         {
             _context = context;
         }
+
+        public async Task<Project> AddAsync(Project project, CancellationToken cancellationToken = default)
+        {
+            await _context.Projects.AddAsync(project, cancellationToken);
+            return project;
+        }
+
         public async Task<int> CountAsync(ProjectFilter filter, CancellationToken cancellationToken = default)
         {
             var query = _context.Projects.AsQueryable();
@@ -140,6 +147,24 @@ namespace RVDMS.Infrastructure.Repositories
                     p.LastUpdatedById == userId ||
                     p.ProjectAssignments.Any(pa => pa.UserId == userId && pa.RevokedAt == null),
                     cancellationToken);
+        }
+
+        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task SoftDeleteAsync(Guid id, string deletedBy, CancellationToken cancellationToken = default)
+        {
+            var project = await GetByIdAsync(id, cancellationToken);
+            if (project != null)
+            {
+                // Perform soft delete logic
+                project.IsDeleted = true;
+                project.DeletedAt = DateTime.UtcNow;
+                project.DeletedBy = deletedBy;
+                _context.Projects.Update(project);
+            }
         }
 
         public async Task UpdateAsync(Project project, CancellationToken cancellationToken = default)

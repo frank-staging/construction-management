@@ -92,6 +92,9 @@ namespace RVDMS.Domain.Entities
 
         public bool IsOverdue =>
             DateTime.UtcNow > EndDate && Status != ProjectStatus.Completed;
+
+       
+
         public Location GetLocation()
         {
             return new Location(Latitude, Longitude, RadiusInMeters);

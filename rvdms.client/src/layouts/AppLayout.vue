@@ -43,9 +43,9 @@
               class="flex items-center gap-2 px-2 md:px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
             >
               <div
-                class="w-7 h-7 md:w-8 md:h-8 bg-emerald-100 rounded-full flex items-center justify-center"
+                class="w-7 h-7 md:w-8 md:h-8 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center"
               >
-                <span class="text-xs md:text-sm font-medium text-emerald-700">{{
+                <span class="text-xs md:text-sm font-medium text-emerald-700 dark:text-emerald-400">{{
                   userInitials
                 }}</span>
               </div>
@@ -97,44 +97,132 @@
         ]"
       >
         <nav class="p-4 space-y-1 overflow-y-auto h-full">
-          <RouterLink
-            to="/dashboard"
-            class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm"
-            :class="
-              isActive('/dashboard')
-                ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-medium'
-                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
-            "
-            @click="mobileMenuOpen = false"
-          >
-            <LayoutDashboardIcon class="w-5 h-5" /> <span>Dashboard</span>
-          </RouterLink>
-          <RouterLink
-            to="/dashboard/projects"
-            class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm"
-            :class="
-              isActive('/dashboard/projects')
-                ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-medium'
-                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
-            "
-            @click="mobileMenuOpen = false"
-          >
-            <FolderKanbanIcon class="w-5 h-5" /> <span>All Projects</span>
-            <span class="ml-auto text-xs text-slate-400">{{ projectCount }}</span>
-          </RouterLink>
-          <RouterLink
-            to="/dashboard/users"
-            class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm"
-            :class="
-              isActive('/dashboard/users')
-                ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-medium'
-                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
-            "
-            @click="mobileMenuOpen = false"
-          >
-            <UsersIcon class="w-5 h-5" /> <span>All Users</span>
-            <span class="ml-auto text-xs text-slate-400">{{ userCount }}</span>
-          </RouterLink>
+          <!-- SUPER ADMIN MENU -->
+          <template v-if="userRole === 'SuperAdmin'">
+            <RouterLink
+              to="/dashboard"
+              class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm"
+              :class="
+                isActive('/dashboard')
+                  ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-medium'
+                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+              "
+              @click="mobileMenuOpen = false"
+            >
+              <LayoutDashboardIcon class="w-5 h-5" />
+              <span>Dashboard</span>
+            </RouterLink>
+
+            <RouterLink
+              to="/dashboard/projects"
+              class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm"
+              :class="
+                isActive('/dashboard/projects')
+                  ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-medium'
+                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+              "
+              @click="mobileMenuOpen = false"
+            >
+              <FolderKanbanIcon class="w-5 h-5" />
+              <span>All Projects</span>
+              <span class="ml-auto text-xs text-slate-400">{{ projectCount }}</span>
+            </RouterLink>
+
+            <RouterLink
+              to="/dashboard/users"
+              class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm"
+              :class="
+                isActive('/dashboard/users')
+                  ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-medium'
+                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+              "
+              @click="mobileMenuOpen = false"
+            >
+              <UsersIcon class="w-5 h-5" />
+              <span>All Users</span>
+              <span class="ml-auto text-xs text-slate-400">{{ userCount }}</span>
+            </RouterLink>
+          </template>
+
+          <!-- LEADERSHIP MENU (RL, CDH, TL, CS) -->
+          <template v-else-if="['RL', 'CDH', 'TL', 'CS'].includes(userRole)">
+            <RouterLink
+              to="/dashboard"
+              class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm"
+              :class="
+                isActive('/dashboard')
+                  ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-medium'
+                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+              "
+              @click="mobileMenuOpen = false"
+            >
+              <LayoutDashboardIcon class="w-5 h-5" />
+              <span>Dashboard</span>
+            </RouterLink>
+
+            <RouterLink
+              to="/dashboard/projects"
+              class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm"
+              :class="
+                isActive('/dashboard/projects')
+                  ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-medium'
+                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+              "
+              @click="mobileMenuOpen = false"
+            >
+              <FolderKanbanIcon class="w-5 h-5" />
+              <span>All Projects</span>
+              <span class="ml-auto text-xs text-slate-400">{{ projectCount }}</span>
+            </RouterLink>
+
+            <RouterLink
+              v-if="userRole !== 'CS' && userRole !== 'TL'"
+              to="/dashboard/users"
+              class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm"
+              :class="
+                isActive('/dashboard/users')
+                  ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-medium'
+                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+              "
+              @click="mobileMenuOpen = false"
+            >
+              <UsersIcon class="w-5 h-5" />
+              <span>All Users</span>
+              <span class="ml-auto text-xs text-slate-400">{{ userCount }}</span>
+            </RouterLink>
+          </template>
+
+          <!-- CLERK OF WORKS MENU -->
+          <template v-else-if="userRole === 'COW'">
+            <RouterLink
+              to="/dashboard/clerk"
+              class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm"
+              :class="
+                isActive('/dashboard/clerk')
+                  ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-medium'
+                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+              "
+              @click="mobileMenuOpen = false"
+            >
+              <LayoutDashboardIcon class="w-5 h-5" />
+              <span>My Dashboard</span>
+            </RouterLink>
+
+            <RouterLink
+              v-if="userRole === 'COW'"
+              to="/dashboard/clerk/projects"
+              class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm"
+              :class="
+                isActive('/dashboard/clerk/projects')
+                  ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-medium'
+                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+              "
+              @click="mobileMenuOpen = false"
+            >
+              <FolderKanbanIcon class="w-5 h-5" />
+              <span>My Projects</span>
+            </RouterLink>
+          </template>
         </nav>
       </aside>
 
@@ -188,10 +276,12 @@ const userInitials = computed(() => {
 
 const roleTitle = computed(() => {
   const titles = {
+    SuperAdmin: "Super Administrator Dashboard",
     RL: "Regional Lead Dashboard",
     CS: "Cluster Supervisor Dashboard",
     CDH: "County Director Dashboard",
     TL: "Technical Lead Dashboard",
+    COW: "Clerk of Works Dashboard",
   };
   return titles[userRole.value] || "Leadership Dashboard";
 });
@@ -201,6 +291,7 @@ const userCount = computed(() => userStore.pagination?.totalRecords || 0);
 
 const isActive = (path) => {
   if (path === "/dashboard") return route.path === "/dashboard";
+  if (path === "/dashboard/clerk") return route.path === "/dashboard/clerk";
   return route.path.startsWith(path);
 };
 
@@ -228,10 +319,13 @@ const handleResize = () => {
 };
 
 onMounted(async () => {
-  await Promise.all([
-    projectStore.fetchProjects({ pageSize: 1 }),
-    userStore.fetchUsers({ pageSize: 1 }),
-  ]);
+  // Only fetch counts if user is authenticated and has access
+  if (authStore.isAuthenticated && userRole.value !== "COW") {
+    await Promise.all([
+      projectStore.fetchProjects({ pageSize: 1 }),
+      userStore.fetchUsers({ pageSize: 1 }),
+    ]);
+  }
   themeStore.initTheme();
   document.addEventListener("click", handleClickOutside);
   window.addEventListener("resize", handleResize);

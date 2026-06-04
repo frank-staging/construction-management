@@ -127,7 +127,7 @@ import bomaLogo from "@/assets/logos/boma-yangu.jpg";
 
 const router = useRouter();
 const authStore = useAuthStore();
-var toast = useToast();
+const toast = useToast();
 
 const email = ref("");
 const password = ref("");
@@ -178,8 +178,6 @@ const handleLogin = async () => {
     // 1️⃣ Get location
     const position = await authStore.getCurrentPosition();
     const { latitude, longitude } = position.coords;
-    // console.log("latitude: ", latitude);
-    // console.log("longitude: ", longitude);
 
     // 2️⃣ Call login WITH location
     const result = await authStore.login(email.value, password.value, latitude, longitude);
@@ -191,29 +189,37 @@ const handleLogin = async () => {
 
     toast.success("Login successful 🚀");
 
-    // 3️⃣ Redirect using store role
+    // 3️⃣ Redirect based on role (UPDATED with SuperAdmin)
     const role = authStore.userRole;
 
     switch (role) {
-      case "CS":
+      case "SuperAdmin":
+        // SuperAdmin goes to full analytics dashboard
+        router.push("/dashboard");
+        break;
+
       case "RL":
       case "CDH":
       case "TL":
-        // All leadership roles go to the same dashboard
+      case "CS":
+        // All leadership roles go to the leadership dashboard
         router.push("/dashboard");
         break;
 
       case "COW":
+        // Clerk of Works goes to their specific dashboard
         router.push("/dashboard/clerk");
         break;
 
       default:
+        // Fallback for any other role
         router.push("/dashboard");
         break;
     }
   } catch (error) {
     toast.error("Location access is required. Please enable GPS and try again.");
     locationStatus.value = "Location access denied";
+    console.error("Login error:", error);
   } finally {
     loading.value = false;
   }

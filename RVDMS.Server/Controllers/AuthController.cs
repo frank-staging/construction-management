@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using RVDMS.Application.commands.Users.AssignRole;
 using RVDMS.Application.commands.Users.AuthToken;
 using RVDMS.Application.commands.Users.Login;
 using RVDMS.Application.commands.Users.PasswordChange;
@@ -97,6 +98,15 @@ namespace RVDMS.Api.Controllers
                 return BadRequest(result);
 
             return Ok(result);
+        }
+        [HttpPost("assign-role")]
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> AssignRole([FromBody] AssignRoleCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            if (!result.IsSuccess)
+                return BadRequest(result.Error);
+            return Ok(new { message = "Role assigned successfully" });
         }
     }
 }
