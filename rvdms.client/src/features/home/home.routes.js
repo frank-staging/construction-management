@@ -18,7 +18,7 @@ export default [
     children: [
       {
         name: "superAdminDashboard",
-        path: "",
+        path: "/super-admin",
         component: () => import("./views/dashboard/superAdmin/SuperAdminDashboard.vue"),
       },
       {
