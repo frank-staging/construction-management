@@ -3,7 +3,7 @@
   "appName": "RVDMS",
   "webDir": "dist",
   "server": {
-    "url": "https://rvdms.netlify.app",
+    "url": "https://rvdms-web.netlify.app",
     "cleartext": false
   }
 }

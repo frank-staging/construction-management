@@ -195,7 +195,7 @@ const handleLogin = async () => {
     switch (role) {
       case "SuperAdmin":
         // SuperAdmin goes to full analytics dashboard
-        router.push("/dashboard");
+        router.push("/super-admin");
         break;
 
       case "RL":

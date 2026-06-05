@@ -12,7 +12,7 @@ export default [
 
   // SUPER ADMIN ROUTES - Wrapped in AppLayout
   {
-    path: "/dashboard",
+    path: "/super-admin",
     component: AppLayout,
     meta: { requiresAuth: true, role: "SuperAdmin" },
     children: [
